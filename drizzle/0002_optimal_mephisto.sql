@@ -1,0 +1,2 @@
+ALTER TABLE `listings` MODIFY COLUMN `category` enum('garage_sale','yard_sale','estate_sale','multi_family_sale','block_sale','free_stuff','other') NOT NULL;--> statement-breakpoint
+ALTER TABLE `userListings` MODIFY COLUMN `category` enum('garage_sale','yard_sale','estate_sale','multi_family_sale','block_sale','free_stuff','other') NOT NULL;

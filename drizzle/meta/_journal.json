@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1771854544327,
+      "tag": "0000_slimy_wolf_cub",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1771854860287,
+      "tag": "0001_plain_sugar_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1771856212864,
+      "tag": "0002_optimal_mephisto",
+      "breakpoints": true
+    }
+  ]
 }
