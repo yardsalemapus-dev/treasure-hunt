@@ -29,8 +29,8 @@
 - [x] Write unit tests for scraper logic
 
 ## Phase 4: Map & UI Foundation
-- [ ] Set up Leaflet/OpenStreetMap integration
-- [ ] Create map component with marker display
+- [x] Set up Leaflet/OpenStreetMap integration
+- [x] Create map component with marker display
 - [ ] Implement listing card component
 - [ ] Build search and filter interface
 - [ ] Add listing detail modal/page
