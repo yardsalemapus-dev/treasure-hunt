@@ -31,10 +31,30 @@
 ## Phase 4: Map & UI Foundation
 - [x] Set up Leaflet/OpenStreetMap integration
 - [x] Create map component with marker display
-- [ ] Implement listing card component
-- [ ] Build search and filter interface
-- [ ] Add listing detail modal/page
+- [x] Implement listing card component
+- [x] Build search and filter interface
+- [x] Add listing detail modal/page
 - [ ] Implement map clustering for performance
+
+## Phase 5: Route Optimization
+- [x] Build route optimization algorithm (TSP with 2-opt)
+- [x] Create route calculation API endpoints
+- [x] Implement distance and time estimation
+- [x] Add route saving for authenticated users
+- [x] Write comprehensive unit tests (9 tests)
+
+## Phase 6: Facebook Marketplace Scraper
+- [x] Build Facebook Marketplace scraper
+- [x] Implement multi-type sale detection
+- [x] Add category determination logic
+- [x] Create database conversion helpers
+
+## Phase 7: Explorer Page
+- [x] Build main Explorer page with geolocation
+- [x] Implement category filters
+- [x] Add listing selection and route planning
+- [x] Create route summary display
+- [x] Integrate map and route optimization
 
 ## Phase 5: Route Optimization
 - [ ] Implement Haversine distance calculation
