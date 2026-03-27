@@ -12,13 +12,8 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Copy .env file if it exists
-COPY .env* ./
-
-# Build the application with environment variables
-RUN --mount=type=secret,id=env_file \
-  if [ -f .env ]; then set -a && source .env && set +a; fi && \
-  pnpm run build
+# Build the application
+RUN pnpm run build
 
 # Runtime stage
 FROM node:22-alpine
