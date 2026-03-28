@@ -89,7 +89,11 @@
 - [ ] Implement free tier access controls
 
 ## Phase 9: Frontend Pages & Flows
-- [ ] Create landing page with feature overview
+- [ ] Create landing page with interactive map background
+- [ ] Implement geolocation permission request on landing
+- [ ] Add dynamic sales count display (nearby sales)
+- [ ] Build filter toggles (bathrooms, refreshments, categories)
+- [ ] Implement 3-day trial + $7.99/month Stripe checkout
 - [ ] Build authentication pages (login/signup)
 - [ ] Create main dashboard/map page
 - [ ] Build route planning page
