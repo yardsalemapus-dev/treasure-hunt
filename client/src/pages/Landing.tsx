@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapView } from "@/components/Map";
-import { Loader2, MapPin, Filter, X } from "lucide-react";
+import { Loader2, MapPin, Filter } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 type SaleCategory = "garage_sale" | "yard_sale" | "estate_sale" | "multi_family_sale" | "block_sale" | "free_stuff";
@@ -42,13 +42,16 @@ export default function Landing() {
     refreshments: false,
   });
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const [nearbyCount, setNearbyCount] = useState(0);
-  const [radius] = useState(5); // 5 miles
+  const [radius] = useState(5);
 
   const createCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
 
-  // Fetch nearby listings
   const { data: nearbyListings, isLoading: listingsLoading } = trpc.listings.getNearby.useQuery(
     userLocation
       ? {
@@ -63,7 +66,6 @@ export default function Landing() {
     }
   );
 
-  // Request geolocation
   const requestLocation = () => {
     setLocationLoading(true);
     setLocationError(null);
@@ -80,7 +82,6 @@ export default function Landing() {
         setUserLocation({ lat: latitude, lng: longitude });
         setLocationLoading(false);
 
-        // Center map on user location
         if (mapRef.current) {
           mapRef.current.setCenter({ lat: latitude, lng: longitude });
           mapRef.current.setZoom(14);
@@ -99,24 +100,20 @@ export default function Landing() {
     );
   };
 
-  // Update nearby count
   useEffect(() => {
     if (nearbyListings) {
       setNearbyCount(nearbyListings.length);
     }
   }, [nearbyListings]);
 
-  // Plot markers on map
   useEffect(() => {
     if (!mapRef.current || !nearbyListings) return;
 
-    // Clear existing markers
     markersRef.current.forEach((marker) => {
       marker.map = null;
     });
     markersRef.current = [];
 
-    // Add new markers
     nearbyListings.forEach((listing) => {
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map: mapRef.current,
@@ -127,7 +124,6 @@ export default function Landing() {
         title: listing.title,
       });
 
-      // Add click listener to show info
       marker.addListener("click", () => {
         const infoWindow = new google.maps.InfoWindow({
           content: `<div class="p-2"><strong>${listing.title}</strong><br/>${listing.address}</div>`,
@@ -147,21 +143,43 @@ export default function Landing() {
     );
   };
 
-  const handleStartTrial = async () => {
+  const validateEmail = (emailStr: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(emailStr);
+  };
+
+  const handleStartTrial = () => {
+    setShowEmailForm(true);
+    setEmailError(null);
+  };
+
+  const handleCheckout = async () => {
+    if (!email || !validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+    if (!name.trim()) {
+      setEmailError("Please enter your name");
+      return;
+    }
+
     setCheckoutLoading(true);
+    setEmailError(null);
     try {
       const result = await createCheckoutMutation.mutateAsync({
-        email: "user@example.com", // In production, get from auth
-        name: "TreasureHunt User",
+        email,
+        name,
         returnUrl: window.location.origin,
       });
 
       if (result.url) {
+        // Redirect to dashboard after successful checkout
         window.location.href = result.url;
+        // After Stripe redirects back, the user will be logged in and can access /dashboard
       }
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Failed to start checkout. Please try again.");
+      setEmailError("Failed to start checkout. Please try again.");
     } finally {
       setCheckoutLoading(false);
     }
@@ -319,24 +337,85 @@ export default function Landing() {
                   </div>
                 )}
 
-                {/* CTA Button */}
-                <Button
-                  onClick={handleStartTrial}
-                  disabled={checkoutLoading}
-                  className="w-full h-12 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-                >
-                  {checkoutLoading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      Processing...
-                    </>
-                  ) : (
-                    "Start 3-Day Free Trial"
-                  )}
-                </Button>
-                <p className="text-center text-sm text-gray-600">
-                  Then $7.99/month. Cancel anytime.
-                </p>
+                {/* Email Form or CTA Button */}
+                {!showEmailForm ? (
+                  <>
+                    <Button
+                      onClick={handleStartTrial}
+                      className="w-full h-12 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    >
+                      Start 3-Day Free Trial
+                    </Button>
+                    <p className="text-center text-sm text-gray-600">
+                      Then $7.99/month. Cancel anytime.
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-4 border-t pt-4">
+                    <h3 className="font-semibold text-gray-800">Complete Your Profile</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setEmailError(null);
+                        }}
+                        placeholder="John Doe"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailError(null);
+                        }}
+                        placeholder="john@example.com"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    {emailError && (
+                      <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">
+                        {emailError}
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleCheckout}
+                      disabled={checkoutLoading}
+                      className="w-full h-12 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                    >
+                      {checkoutLoading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Processing...
+                        </>
+                      ) : (
+                        "Continue to Checkout"
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEmailForm(false);
+                        setEmail("");
+                        setName("");
+                        setEmailError(null);
+                      }}
+                      className="w-full"
+                    >
+                      Back
+                    </Button>
+                  </div>
+                )}
               </div>
             </>
           )}
