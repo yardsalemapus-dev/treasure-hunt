@@ -89,17 +89,25 @@
 - [ ] Implement free tier access controls
 
 ## Phase 9: Frontend Pages & Flows
-- [ ] Create landing page with interactive map background
-- [ ] Implement geolocation permission request on landing
-- [ ] Add dynamic sales count display (nearby sales)
-- [ ] Build filter toggles (bathrooms, refreshments, categories)
-- [ ] Implement 3-day trial + $7.99/month Stripe checkout
-- [ ] Build authentication pages (login/signup)
-- [ ] Create main dashboard/map page
-- [ ] Build route planning page
-- [ ] Create user profile and account settings page
-- [ ] Build subscription management page
+- [x] Create landing page with interactive map background
+- [x] Implement geolocation permission request on landing
+- [x] Add dynamic sales count display (nearby sales)
+- [x] Build filter toggles (bathrooms, refreshments, categories)
+- [x] Implement 3-day trial + $7.99/month Stripe checkout
+- [x] Build authentication pages (login/signup)
+- [x] Create main dashboard/map page
+- [x] Build route planning page
+- [x] Create user profile and account settings page
+- [x] Build subscription management page
 - [ ] Create admin dashboard
+
+## Phase 10: Route Optimization & Sharing Features
+- [x] Add thrift stores and antique stores to filter toggles
+- [x] Build route optimization UI with multi-select markers
+- [x] Implement route generation with turn-by-turn directions
+- [x] Add saved routes feature with database persistence
+- [x] Implement social sharing (link, Facebook, Twitter)
+- [x] Add route statistics (total distance, estimated time, number of stops)
 
 ## Phase 10: Admin & Testing Tools
 - [ ] Build admin dashboard for scraper management

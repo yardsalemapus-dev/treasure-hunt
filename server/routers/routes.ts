@@ -89,6 +89,102 @@ export const routesRouter = router({
     }),
 
   /**
+   * Optimize route with listings and starting point
+   */
+  optimizeRoute: publicProcedure
+    .input(
+      z.object({
+        listings: z.array(
+          z.object({
+            id: z.number(),
+            latitude: z.number(),
+            longitude: z.number(),
+            title: z.string(),
+          })
+        ),
+        startPoint: z.object({
+          lat: z.number(),
+          lng: z.number(),
+        }),
+      })
+    )
+    .mutation(async ({ input }) => {
+      if (input.listings.length === 0) {
+        return {
+          listings: [],
+          totalDistance: 0,
+          estimatedTime: 0,
+          waypoints: [],
+        };
+      }
+
+      // Convert to Location format for optimization
+      const locations = input.listings.map((listing) => ({
+        id: listing.id,
+        latitude: listing.latitude,
+        longitude: listing.longitude,
+        name: listing.title,
+      }));
+
+      // Optimize route
+      const optimized = optimizeRoute(locations);
+
+      return {
+        listings: input.listings,
+        totalDistance: optimized.totalDistance,
+        estimatedTime: optimized.estimatedTime,
+        waypoints: optimized.waypoints,
+      };
+    }),
+
+  /**
+   * Save route for authenticated user
+   */
+  saveRoute: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        listings: z.array(z.number()),
+        totalDistance: z.number(),
+        estimatedTime: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database unavailable");
+      }
+
+      const result = await db.insert(savedRoutes).values({
+        userId: ctx.user.id,
+        name: input.name,
+        listingIds: input.listings,
+        optimizedOrder: input.listings,
+        totalDistance: input.totalDistance.toString() as any,
+        estimatedTime: input.estimatedTime,
+      });
+
+      return result;
+    }),
+
+  /**
+   * Get all saved routes for authenticated user
+   */
+  getSavedRoutes: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database unavailable");
+    }
+
+    const routes = await db
+      .select()
+      .from(savedRoutes)
+      .where(eq(savedRoutes.userId, ctx.user.id));
+
+    return routes;
+  }),
+
+  /**
    * Save optimized route for authenticated user
    */
   saveOptimized: protectedProcedure
@@ -120,23 +216,6 @@ export const routesRouter = router({
     }),
 
   /**
-   * Get all saved routes for authenticated user
-   */
-  getSaved: protectedProcedure.query(async ({ ctx }) => {
-    const db = await getDb();
-    if (!db) {
-      throw new Error("Database unavailable");
-    }
-
-    const routes = await db
-      .select()
-      .from(savedRoutes)
-      .where(eq(savedRoutes.userId, ctx.user.id));
-
-    return routes;
-  }),
-
-  /**
    * Delete saved route
    */
   delete: protectedProcedure
@@ -162,4 +241,21 @@ export const routesRouter = router({
 
       return { success: true };
     }),
+
+  /**
+   * Get all saved routes for authenticated user (alias for getSavedRoutes)
+   */
+  getSaved: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) {
+      throw new Error("Database unavailable");
+    }
+
+    const routes = await db
+      .select()
+      .from(savedRoutes)
+      .where(eq(savedRoutes.userId, ctx.user.id));
+
+    return routes;
+  }),
 });

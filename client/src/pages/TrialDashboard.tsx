@@ -3,10 +3,32 @@ import { Button } from "@/components/ui/button";
 import { MapView } from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { Loader2, MapPin, Filter, LogOut, Clock } from "lucide-react";
+import {
+  Loader2,
+  MapPin,
+  Filter,
+  LogOut,
+  Clock,
+  Route,
+  Share2,
+  Bookmark,
+  Navigation,
+  Copy,
+  Facebook,
+  Twitter,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
-type SaleCategory = "garage_sale" | "yard_sale" | "estate_sale" | "multi_family_sale" | "block_sale" | "free_stuff";
+type SaleCategory =
+  | "garage_sale"
+  | "yard_sale"
+  | "estate_sale"
+  | "multi_family_sale"
+  | "block_sale"
+  | "free_stuff"
+  | "thrift_store"
+  | "antique_store";
 
 const CATEGORY_LABELS: Record<SaleCategory, string> = {
   garage_sale: "Garage Sale",
@@ -15,13 +37,23 @@ const CATEGORY_LABELS: Record<SaleCategory, string> = {
   multi_family_sale: "Multi-Family",
   block_sale: "Block Sale",
   free_stuff: "Free Stuff",
+  thrift_store: "Thrift Store",
+  antique_store: "Antique Store",
 };
+
+interface RouteData {
+  listings: any[];
+  totalDistance: number;
+  estimatedTime: number;
+  waypoints: any[];
+}
 
 export default function TrialDashboard() {
   const { user, logout } = useAuth();
   const [, navigate] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
@@ -33,6 +65,11 @@ export default function TrialDashboard() {
   ]);
   const [radius, setRadius] = useState(5);
   const [trialDaysLeft, setTrialDaysLeft] = useState(0);
+  const [selectedListings, setSelectedListings] = useState<Set<number>>(new Set());
+  const [optimizedRoute, setOptimizedRoute] = useState<RouteData | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [savedRoutes, setSavedRoutes] = useState<any[]>([]);
+  const [showSavedRoutes, setShowSavedRoutes] = useState(false);
 
   // Get subscription status
   const { data: subscriptionStatus } = trpc.stripe.getSubscriptionStatus.useQuery();
@@ -52,14 +89,12 @@ export default function TrialDashboard() {
     }
   );
 
-  const logoutMutation = trpc.auth.logout.useMutation();
+  // Fetch saved routes
+  const { data: userSavedRoutes } = trpc.routes.getSavedRoutes.useQuery();
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const logoutMutation = trpc.auth.logout.useMutation();
+  const optimizeRouteMutation = trpc.routes.optimizeRoute.useMutation();
+  const saveRouteMutation = trpc.routes.saveRoute.useMutation();
 
   // Calculate trial days left
   useEffect(() => {
@@ -71,11 +106,25 @@ export default function TrialDashboard() {
     }
   }, [subscriptionStatus]);
 
+  // Update saved routes
+  useEffect(() => {
+    if (userSavedRoutes) {
+      setSavedRoutes(userSavedRoutes);
+    }
+  }, [userSavedRoutes]);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const requestLocation = () => {
     setLocationLoading(true);
 
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      toast.error("Geolocation is not supported by your browser");
       setLocationLoading(false);
       return;
     }
@@ -92,7 +141,7 @@ export default function TrialDashboard() {
         }
       },
       () => {
-        alert("Unable to get your location");
+        toast.error("Unable to get your location");
         setLocationLoading(false);
       }
     );
@@ -108,6 +157,7 @@ export default function TrialDashboard() {
     markersRef.current = [];
 
     nearbyListings.forEach((listing) => {
+      const isSelected = selectedListings.has(listing.id);
       const marker = new google.maps.marker.AdvancedMarkerElement({
         map: mapRef.current,
         position: {
@@ -117,16 +167,134 @@ export default function TrialDashboard() {
         title: listing.title,
       });
 
+      // Style marker based on selection
+      const markerDiv = document.createElement("div");
+      markerDiv.style.width = isSelected ? "40px" : "30px";
+      markerDiv.style.height = isSelected ? "40px" : "30px";
+      markerDiv.style.borderRadius = "50%";
+      markerDiv.style.backgroundColor = isSelected ? "#3b82f6" : "#ef4444";
+      markerDiv.style.border = "3px solid white";
+      markerDiv.style.cursor = "pointer";
+      marker.content = markerDiv;
+
       marker.addListener("click", () => {
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<div class="p-2"><strong>${listing.title}</strong><br/>${listing.address}</div>`,
-        });
-        infoWindow.open(mapRef.current, marker);
+        toggleListingSelection(listing.id);
       });
 
       markersRef.current.push(marker);
     });
-  }, [nearbyListings]);
+  }, [nearbyListings, selectedListings]);
+
+  const toggleListingSelection = (listingId: number) => {
+    const newSelected = new Set(selectedListings);
+    if (newSelected.has(listingId)) {
+      newSelected.delete(listingId);
+    } else {
+      newSelected.add(listingId);
+    }
+    setSelectedListings(newSelected);
+  };
+
+  const handleOptimizeRoute = async () => {
+    if (selectedListings.size === 0) {
+      toast.error("Please select at least one sale");
+      return;
+    }
+
+    const selectedListingObjects = nearbyListings?.filter((l) =>
+      selectedListings.has(l.id)
+    ) || [];
+
+    try {
+      const result = await optimizeRouteMutation.mutateAsync({
+        listings: selectedListingObjects.map((l) => ({
+          id: l.id,
+          latitude: parseFloat(l.latitude as any),
+          longitude: parseFloat(l.longitude as any),
+          title: l.title,
+        })),
+        startPoint: userLocation!,
+      });
+
+      setOptimizedRoute(result);
+      toast.success("Route optimized!");
+
+      // Draw route on map
+      if (mapRef.current && result.waypoints.length > 0) {
+        const directionsService = new google.maps.DirectionsService();
+        const waypoints = result.waypoints.slice(1, -1).map((point: any) => ({
+          location: new google.maps.LatLng(point.lat, point.lng),
+          stopover: true,
+        }));
+
+        const firstPoint = result.waypoints[0] as any;
+        const lastPoint = result.waypoints[result.waypoints.length - 1] as any;
+
+        directionsService.route(
+          {
+            origin: new google.maps.LatLng(firstPoint.lat, firstPoint.lng),
+            destination: new google.maps.LatLng(lastPoint.lat, lastPoint.lng),
+            waypoints: waypoints,
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          (result, status) => {
+            if (status === google.maps.DirectionsStatus.OK && directionsRendererRef.current) {
+              directionsRendererRef.current.setDirections(result);
+            }
+          }
+        );
+      }
+    } catch (error) {
+      toast.error("Failed to optimize route");
+    }
+  };
+
+  const handleSaveRoute = async () => {
+    if (!optimizedRoute) {
+      toast.error("No route to save");
+      return;
+    }
+
+    try {
+      await saveRouteMutation.mutateAsync({
+        name: `Route - ${new Date().toLocaleDateString()}`,
+        listings: optimizedRoute.listings.map((l) => l.id),
+        totalDistance: optimizedRoute.totalDistance,
+        estimatedTime: optimizedRoute.estimatedTime,
+      });
+
+      toast.success("Route saved!");
+    } catch (error) {
+      toast.error("Failed to save route");
+    }
+  };
+
+  const handleShareRoute = (platform: "link" | "facebook" | "twitter") => {
+    if (!optimizedRoute) {
+      toast.error("No route to share");
+      return;
+    }
+
+    const routeText = `Check out my optimized garage sale route! ${optimizedRoute.listings.length} stops, ${optimizedRoute.totalDistance.toFixed(1)} miles, ~${Math.round(optimizedRoute.estimatedTime)} minutes.`;
+    const shareUrl = `${window.location.origin}/shared-route/${optimizedRoute.listings.map((l) => l.id).join(",")}`;
+
+    if (platform === "link") {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    } else if (platform === "facebook") {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(routeText)}`,
+        "_blank"
+      );
+    } else if (platform === "twitter") {
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(routeText)}&url=${encodeURIComponent(shareUrl)}`,
+        "_blank"
+      );
+    }
+
+    setShowShareMenu(false);
+  };
 
   const handleCategoryToggle = (category: SaleCategory) => {
     setSelectedCategories((prev) =>
@@ -148,11 +316,11 @@ export default function TrialDashboard() {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="w-80 bg-white shadow-lg flex flex-col">
+      <div className="w-96 bg-white shadow-lg flex flex-col overflow-hidden">
         {/* Header */}
         <div className="p-6 border-b">
           <h1 className="text-2xl font-bold text-gray-800">🗺️ TreasureHunt</h1>
-          <p className="text-sm text-gray-600 mt-1">Premium Explorer</p>
+          <p className="text-sm text-gray-600 mt-1">Route Explorer</p>
         </div>
 
         {/* User Info */}
@@ -163,11 +331,6 @@ export default function TrialDashboard() {
             <div className="mt-3 flex items-center gap-2 text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded">
               <Clock className="w-4 h-4" />
               <span>{trialDaysLeft} days left in trial</span>
-            </div>
-          )}
-          {subscriptionStatus?.isActive && subscriptionStatus?.status === "active" && (
-            <div className="mt-3 text-sm text-green-700 bg-green-100 px-3 py-2 rounded font-medium">
-              ✓ Premium Active
             </div>
           )}
         </div>
@@ -240,7 +403,7 @@ export default function TrialDashboard() {
 
           {showFilters && (
             <div className="space-y-3">
-              <h3 className="font-semibold text-gray-800">Sale Types</h3>
+              <h3 className="font-semibold text-gray-800">Sale Types & Stores</h3>
               <div className="space-y-2">
                 {(Object.entries(CATEGORY_LABELS) as [SaleCategory, string][]).map(
                   ([category, label]) => (
@@ -258,6 +421,122 @@ export default function TrialDashboard() {
                   )
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Selected Listings */}
+          {selectedListings.size > 0 && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="font-semibold text-gray-800 mb-3">
+                Selected ({selectedListings.size})
+              </h3>
+              <Button
+                onClick={handleOptimizeRoute}
+                disabled={optimizeRouteMutation.isPending}
+                className="w-full mb-3 bg-green-600 hover:bg-green-700"
+              >
+                <Route className="w-4 h-4 mr-2" />
+                {optimizeRouteMutation.isPending ? "Optimizing..." : "Optimize Route"}
+              </Button>
+            </div>
+          )}
+
+          {/* Route Results */}
+          {optimizedRoute && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="font-semibold text-gray-800 mb-3">Route Summary</h3>
+              <div className="space-y-2 text-sm mb-4">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Distance:</span>
+                  <span className="font-semibold">{optimizedRoute.totalDistance.toFixed(1)} mi</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Est. Time:</span>
+                  <span className="font-semibold">
+                    {Math.round(optimizedRoute.estimatedTime)} min
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Stops:</span>
+                  <span className="font-semibold">{optimizedRoute.listings.length}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  onClick={handleSaveRoute}
+                  disabled={saveRouteMutation.isPending}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  {saveRouteMutation.isPending ? "Saving..." : "Save Route"}
+                </Button>
+
+                <div className="relative">
+                  <Button
+                    onClick={() => setShowShareMenu(!showShareMenu)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share Route
+                  </Button>
+
+                  {showShareMenu && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-10">
+                      <button
+                        onClick={() => handleShareRoute("link")}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                        Copy Link
+                      </button>
+                      <button
+                        onClick={() => handleShareRoute("facebook")}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <Facebook className="w-4 h-4" />
+                        Share on Facebook
+                      </button>
+                      <button
+                        onClick={() => handleShareRoute("twitter")}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <Twitter className="w-4 h-4" />
+                        Share on Twitter
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Saved Routes */}
+          {savedRoutes.length > 0 && (
+            <div className="mt-6 pt-6 border-t">
+              <Button
+                onClick={() => setShowSavedRoutes(!showSavedRoutes)}
+                variant="outline"
+                className="w-full"
+              >
+                <Bookmark className="w-4 h-4 mr-2" />
+                Saved Routes ({savedRoutes.length})
+              </Button>
+
+              {showSavedRoutes && (
+                <div className="mt-3 space-y-2">
+                  {savedRoutes.map((route) => (
+                    <div key={route.id} className="p-3 bg-gray-100 rounded">
+                      <p className="font-semibold text-sm">{route.name}</p>
+                      <p className="text-xs text-gray-600">
+                        {route.totalDistance.toFixed(1)} mi • {route.estimatedTime} min
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -283,6 +562,13 @@ export default function TrialDashboard() {
           className="w-full h-full"
           onMapReady={(map) => {
             mapRef.current = map;
+            directionsRendererRef.current = new google.maps.DirectionsRenderer({
+              map: map,
+              polylineOptions: {
+                strokeColor: "#3b82f6",
+                strokeWeight: 4,
+              },
+            });
           }}
         />
 
@@ -291,6 +577,16 @@ export default function TrialDashboard() {
           <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" />
             <span className="text-sm text-gray-600">Finding sales...</span>
+          </div>
+        )}
+
+        {/* Instructions */}
+        {!optimizedRoute && selectedListings.size === 0 && (
+          <div className="absolute bottom-4 left-4 bg-white px-4 py-3 rounded-lg shadow-lg max-w-xs">
+            <p className="text-sm text-gray-700">
+              💡 <strong>Click on markers</strong> to select sales, then tap{" "}
+              <strong>Optimize Route</strong>
+            </p>
           </div>
         )}
       </div>
