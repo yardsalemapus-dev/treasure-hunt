@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Explorer from "./pages/Explorer";
 import TrialDashboard from "./pages/TrialDashboard";
+import { UserDashboard } from "./pages/UserDashboard";
+import { Analytics } from "./pages/Analytics";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -17,6 +19,8 @@ function Router() {
       <Route path={"/home"} component={Home} />
       <Route path={"/explore"} component={Explorer} />
       <Route path={"/dashboard"} component={TrialDashboard} />
+      <Route path={"/user-dashboard"} component={UserDashboard} />
+      <Route path={"/analytics"} component={Analytics} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

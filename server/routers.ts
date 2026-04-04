@@ -7,6 +7,8 @@ import { routesRouter } from "./routers/routes";
 import { stripeRouter } from "./routers/stripe";
 import { reviewsRouter } from "./routers/reviews";
 import { notificationsRouter } from "./routers/notifications";
+import { searchRouter } from "./routers/search";
+import { analyticsRouter } from "./routers/analytics";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -26,6 +28,8 @@ export const appRouter = router({
   stripe: stripeRouter,
   reviews: reviewsRouter,
   notifications: notificationsRouter,
+  search: searchRouter,
+  analytics: analyticsRouter,
 });
 
 export type AppRouter = typeof appRouter;
