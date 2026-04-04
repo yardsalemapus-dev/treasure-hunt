@@ -134,3 +134,44 @@ export const scraperLogs = mysqlTable("scraperLogs", {
 
 export type ScraperLog = typeof scraperLogs.$inferSelect;
 export type InsertScraperLog = typeof scraperLogs.$inferInsert;
+
+// Reviews and ratings for listings
+export const reviews = mysqlTable("reviews", {
+  id: int("id").autoincrement().primaryKey(),
+  listingId: int("listingId").notNull(),
+  userId: int("userId").notNull(),
+  rating: int("rating").notNull(), // 1-5 stars
+  comment: text("comment"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;
+
+// Push notification subscriptions
+export const notificationSubscriptions = mysqlTable("notificationSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  endpoint: varchar("endpoint", { length: 1000 }).notNull(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type NotificationSubscription = typeof notificationSubscriptions.$inferSelect;
+export type InsertNotificationSubscription = typeof notificationSubscriptions.$inferInsert;
+
+// Sent notifications log
+export const sentNotifications = mysqlTable("sentNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  body: text("body"),
+  listingId: int("listingId"),
+  status: mysqlEnum("status", ["sent", "failed"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SentNotification = typeof sentNotifications.$inferSelect;
+export type InsertSentNotification = typeof sentNotifications.$inferInsert;
