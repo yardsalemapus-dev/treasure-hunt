@@ -22,6 +22,14 @@ export const users = mysqlTable("users", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
+  // SMS notification fields
+  phoneNumber: varchar("phoneNumber", { length: 20 }),
+  smsNotificationsEnabled: boolean("smsNotificationsEnabled").default(false).notNull(),
+  // Referral program fields
+  referralCode: varchar("referralCode", { length: 50 }).unique(),
+  referredBy: int("referredBy"), // User ID of referrer
+  referralCredits: decimal("referralCredits", { precision: 10, scale: 2 }).default("0").notNull(),
+  totalReferrals: int("totalReferrals").default(0).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -175,3 +183,49 @@ export const sentNotifications = mysqlTable("sentNotifications", {
 
 export type SentNotification = typeof sentNotifications.$inferSelect;
 export type InsertSentNotification = typeof sentNotifications.$inferInsert;
+
+// Referral tracking table
+export const referrals = mysqlTable("referrals", {
+  id: int("id").autoincrement().primaryKey(),
+  referrerId: int("referrerId").notNull(),
+  referredUserId: int("referredUserId").notNull(),
+  creditAmount: decimal("creditAmount", { precision: 10, scale: 2 }).default("5").notNull(),
+  status: mysqlEnum("status", ["pending", "completed", "claimed"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  claimedAt: timestamp("claimedAt"),
+});
+
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = typeof referrals.$inferInsert;
+
+// Inventory tracking for sellers
+export const inventoryItems = mysqlTable("inventoryItems", {
+  id: int("id").autoincrement().primaryKey(),
+  listingId: int("listingId").notNull(),
+  userId: int("userId").notNull(),
+  itemName: varchar("itemName", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }),
+  quantity: int("quantity").default(1).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }),
+  status: mysqlEnum("status", ["available", "sold", "removed"]).default("available").notNull(),
+  soldAt: timestamp("soldAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type InsertInventoryItem = typeof inventoryItems.$inferInsert;
+
+// Sales reports for sellers
+export const salesReports = mysqlTable("salesReports", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  listingId: int("listingId").notNull(),
+  totalItemsSold: int("totalItemsSold").default(0).notNull(),
+  totalRevenue: decimal("totalRevenue", { precision: 10, scale: 2 }).default("0").notNull(),
+  reportDate: date("reportDate").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SalesReport = typeof salesReports.$inferSelect;
+export type InsertSalesReport = typeof salesReports.$inferInsert;

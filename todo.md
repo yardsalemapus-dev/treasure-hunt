@@ -165,3 +165,12 @@
 - [x] Set up React Native mobile app project
 - [x] Implement offline map support for mobile
 - [x] Add mobile push notifications
+
+
+## Phase 14: SMS, Referrals, Inventory & Enhanced Filters
+- [x] Add thrift stores and antique stores to filter toggles
+- [x] Extend users table with SMS and referral fields
+- [x] Implement SMS notifications via Twilio
+- [x] Build referral program with $5 credits
+- [x] Add inventory tracking for sellers
+- [x] Create referral dashboard and tracking
