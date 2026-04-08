@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MapView } from "@/components/Map";
 import { Loader2, MapPin, Filter } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 type SaleCategory = "garage_sale" | "yard_sale" | "estate_sale" | "multi_family_sale" | "block_sale" | "free_stuff";
 
@@ -25,6 +27,7 @@ const CATEGORY_LABELS: Record<SaleCategory, string> = {
 };
 
 export default function Landing() {
+  const { t } = useLanguage();
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   
@@ -204,11 +207,16 @@ export default function Landing() {
 
       {/* Content Overlay */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4">
+        {/* Language Toggle */}
+        <div className="absolute top-4 right-4 z-30">
+          <LanguageToggle />
+        </div>
+
         <div className="max-w-2xl w-full space-y-6">
           {/* Header */}
           <div className="text-center text-white space-y-2">
-            <h1 className="text-5xl font-bold">🗺️ TreasureHunt</h1>
-            <p className="text-xl opacity-90">Find Amazing Sales Near You</p>
+            <h1 className="text-5xl font-bold">🗺️ {t("common.appName")}</h1>
+            <p className="text-xl opacity-90">{t("landing.subtitle")}</p>
           </div>
 
           {/* Location Request */}
@@ -216,10 +224,10 @@ export default function Landing() {
             <div className="bg-white/95 backdrop-blur rounded-lg shadow-lg p-8 space-y-4">
               <div className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-800">
                 <MapPin className="w-6 h-6 text-blue-600" />
-                Enable Location Access
+                {t("home.enableLocation")}
               </div>
               <p className="text-gray-600 text-center">
-                We need your location to show sales near you
+                {t("home.locationDescription")}
               </p>
               <Button
                 onClick={requestLocation}
@@ -235,7 +243,7 @@ export default function Landing() {
                 ) : (
                   <>
                     <MapPin className="w-5 h-5 mr-2" />
-                    Use My Location
+                    {t("home.useMyLocation")}
                   </>
                 )}
               </Button>

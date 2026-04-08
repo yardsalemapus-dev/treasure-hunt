@@ -1,6 +1,8 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 /**
  * All content in this page are only for example, replace with your own feature implementation
@@ -8,13 +10,17 @@ import { getLoginUrl } from "@/const";
  */
 export default function Home() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
       <header className="bg-white shadow">
-        <div className="max-w-6xl mx-auto px-8 py-6">
-          <h1 className="text-4xl font-bold text-indigo-600">🗺️ TreasureHunt</h1>
-          <p className="text-gray-600">Smart Sale Navigator</p>
+        <div className="max-w-6xl mx-auto px-8 py-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-indigo-600">🗺️ {t("common.appName")}</h1>
+            <p className="text-gray-600">Smart Sale Navigator</p>
+          </div>
+          <LanguageToggle />
         </div>
       </header>
 
@@ -23,29 +29,29 @@ export default function Home() {
           {isAuthenticated ? (
             <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-2">Welcome back, {user?.name || 'User'}!</h2>
-                <p className="text-gray-600">Ready to find some amazing deals?</p>
+                <h2 className="text-2xl font-bold mb-2">{t("home.welcome")}, {user?.name || 'User'}!</h2>
+                <p className="text-gray-600">{t("landing.subtitle")}</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button className="w-full" size="lg">
-                  View Sales Map
+                  {t("explorer.title")}
                 </Button>
                 <Button variant="outline" onClick={logout} className="w-full" size="lg">
-                  Logout
+                  {t("common.logout")}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="space-y-8">
               <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-3xl font-bold mb-4">Find the Best Sales Near You</h2>
+                <h2 className="text-3xl font-bold mb-4">{t("landing.title")}</h2>
                 <p className="text-lg text-gray-600 mb-6">
-                  Discover garage sales, yard sales, and estate sales in your area. Our smart algorithm helps you plan the perfect route to maximize your shopping.
+                  {t("landing.subtitle")}
                 </p>
                 <a href={getLoginUrl()}>
                   <Button className="w-full md:w-auto" size="lg">
-                    Sign In to Get Started
+                    {t("common.login")}
                   </Button>
                 </a>
               </div>
