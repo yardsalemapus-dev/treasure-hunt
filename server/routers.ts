@@ -14,6 +14,7 @@ import { sellerRouter } from "./routers/seller";
 import { smsRouter } from "./routers/sms";
 import { referralsRouter } from "./routers/referrals";
 import { inventoryRouter } from "./routers/inventory";
+import { scrapersRouter } from "./routers/scrapers";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -40,6 +41,7 @@ export const appRouter = router({
   sms: smsRouter,
   referrals: referralsRouter,
   inventory: inventoryRouter,
+  scrapers: scrapersRouter,
 });
 
 export type AppRouter = typeof appRouter;

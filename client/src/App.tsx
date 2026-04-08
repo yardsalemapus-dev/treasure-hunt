@@ -11,6 +11,7 @@ import TrialDashboard from "./pages/TrialDashboard";
 import { UserDashboard } from "./pages/UserDashboard";
 import { Analytics } from "./pages/Analytics";
 import { SellerDashboard } from "./pages/SellerDashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/user-dashboard"} component={UserDashboard} />
       <Route path={"/analytics"} component={Analytics} />
       <Route path={"/seller-dashboard"} component={SellerDashboard} />
+      <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

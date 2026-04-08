@@ -63,7 +63,7 @@ export const listings = mysqlTable("listings", {
   startTime: varchar("startTime", { length: 10 }),
   endTime: varchar("endTime", { length: 10 }),
   category: mysqlEnum("category", ["garage_sale", "yard_sale", "estate_sale", "multi_family_sale", "block_sale", "free_stuff", "other"]).notNull(),
-  source: mysqlEnum("source", ["craigslist", "facebook", "estatesales", "user_submitted"]).notNull(),
+  source: mysqlEnum("source", ["craigslist", "facebook", "ebay", "nextdoor", "estatesales", "user_submitted"]).notNull(),
   sourceUrl: varchar("sourceUrl", { length: 1000 }),
   imageUrl: varchar("imageUrl", { length: 1000 }),
   aiCategory: varchar("aiCategory", { length: 100 }),
@@ -132,7 +132,7 @@ export type InsertAmenity = typeof amenities.$inferInsert;
 // Scraper logs for audit trail
 export const scraperLogs = mysqlTable("scraperLogs", {
   id: int("id").autoincrement().primaryKey(),
-  source: mysqlEnum("source", ["craigslist", "facebook", "estatesales"]).notNull(),
+  source: mysqlEnum("source", ["craigslist", "facebook", "ebay", "nextdoor", "estatesales"]).notNull(),
   status: mysqlEnum("status", ["started", "completed", "failed"]).notNull(),
   listingsFound: int("listingsFound").default(0),
   listingsAdded: int("listingsAdded").default(0),
@@ -229,3 +229,55 @@ export const salesReports = mysqlTable("salesReports", {
 
 export type SalesReport = typeof salesReports.$inferSelect;
 export type InsertSalesReport = typeof salesReports.$inferInsert;
+
+
+// Scraper job queue for tracking scraping tasks
+export const scraperJobs = mysqlTable("scraperJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  source: mysqlEnum("source", ["craigslist", "facebook", "ebay", "nextdoor", "estatesales"]).notNull(),
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).default("pending").notNull(),
+  region: varchar("region", { length: 255 }),
+  listingsFound: int("listingsFound").default(0),
+  listingsAdded: int("listingsAdded").default(0),
+  listingsUpdated: int("listingsUpdated").default(0),
+  errorMessage: text("errorMessage"),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ScraperJob = typeof scraperJobs.$inferSelect;
+export type InsertScraperJob = typeof scraperJobs.$inferInsert;
+
+// Admin activity logs for audit trail
+export const adminLogs = mysqlTable("adminLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  adminId: int("adminId").notNull(),
+  action: varchar("action", { length: 255 }).notNull(),
+  targetType: varchar("targetType", { length: 100 }),
+  targetId: int("targetId"),
+  details: json("details").$type<Record<string, any>>(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminLog = typeof adminLogs.$inferSelect;
+export type InsertAdminLog = typeof adminLogs.$inferInsert;
+
+// Scraper configuration for managing scraper settings
+export const scraperConfig = mysqlTable("scraperConfig", {
+  id: int("id").autoincrement().primaryKey(),
+  source: mysqlEnum("source", ["craigslist", "facebook", "ebay", "nextdoor", "estatesales"]).notNull().unique(),
+  isEnabled: boolean("isEnabled").default(true).notNull(),
+  runFrequency: varchar("runFrequency", { length: 50 }).default("hourly"),
+  lastRunAt: timestamp("lastRunAt"),
+  nextRunAt: timestamp("nextRunAt"),
+  maxListingsPerRun: int("maxListingsPerRun").default(100),
+  timeout: int("timeout").default(300),
+  retryCount: int("retryCount").default(3),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScraperConfig = typeof scraperConfig.$inferSelect;
+export type InsertScraperConfig = typeof scraperConfig.$inferInsert;

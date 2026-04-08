@@ -174,3 +174,18 @@
 - [x] Build referral program with $5 credits
 - [x] Add inventory tracking for sellers
 - [x] Create referral dashboard and tracking
+
+
+## Phase 15: Web Scrapers & Admin Backend
+- [x] Design scraper architecture and database schema
+- [x] Implement Craigslist scraper with proxy rotation
+- [x] Implement Facebook Marketplace scraper
+- [x] Implement eBay scraper
+- [x] Implement Nextdoor scraper
+- [x] Build scraper job queue and scheduling
+- [x] Create admin authentication and role-based access
+- [x] Build admin dashboard with scraper controls
+- [x] Add scraper logs and monitoring
+- [x] Create admin analytics and statistics
+- [ ] Test all scrapers with real data
+- [ ] Deploy scrapers and admin backend
