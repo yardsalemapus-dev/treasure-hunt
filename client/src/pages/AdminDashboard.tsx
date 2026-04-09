@@ -2,8 +2,11 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export function AdminDashboard() {
+  const { t } = useLanguage();
   const { data: user } = trpc.auth.me.useQuery();
   const [selectedScraper, setSelectedScraper] = useState<string>("craigslist");
   const [region, setRegion] = useState<string>("nyc");
@@ -20,8 +23,8 @@ export function AdminDashboard() {
     return (
       <div className="p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800 font-semibold">Access Denied</p>
-          <p className="text-red-700 text-sm">You must be an admin to access this page.</p>
+          <p className="text-red-800 font-semibold">{t("admin.accessDenied")}</p>
+          <p className="text-red-700 text-sm">{t("admin.adminOnly")}</p>
         </div>
       </div>
     );
@@ -54,15 +57,20 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600 mb-6">Manage scrapers and monitor system health</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{t("admin.title")}</h1>
+            <p className="text-gray-600">{t("admin.manageScraperSettings")}</p>
+          </div>
+          <LanguageToggle />
+        </div>
 
         {/* Statistics */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Total Jobs</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-600">{t("admin.totalJobs")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold">{stats.totalJobs}</p>
@@ -70,7 +78,7 @@ export function AdminDashboard() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+                <CardTitle className="text-sm font-medium text-gray-600">{t("admin.completed")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold text-green-600">{stats.completedJobs}</p>

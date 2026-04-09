@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { MapComponent } from "@/components/MapComponent";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { toast } from "sonner";
 import { Loader2, MapPin, Clock, Navigation } from "lucide-react";
 import { skipToken } from "@tanstack/react-query";
@@ -21,17 +23,19 @@ interface Listing {
   sourceUrl?: string | null;
 }
 
-const SALE_CATEGORIES = [
-  { id: "garage_sale", label: "Garage Sale", color: "bg-blue-100 text-blue-800" },
-  { id: "yard_sale", label: "Yard Sale", color: "bg-green-100 text-green-800" },
-  { id: "estate_sale", label: "Estate Sale", color: "bg-amber-100 text-amber-800" },
-  { id: "multi_family_sale", label: "Multi-Family", color: "bg-purple-100 text-purple-800" },
-  { id: "block_sale", label: "Block Sale", color: "bg-pink-100 text-pink-800" },
-  { id: "free_stuff", label: "Free Stuff", color: "bg-cyan-100 text-cyan-800" },
+const getCategoryLabels = (t: any) => [
+  { id: "garage_sale", label: t("explorer.garageSale"), color: "bg-blue-100 text-blue-800" },
+  { id: "yard_sale", label: t("explorer.yardSale"), color: "bg-green-100 text-green-800" },
+  { id: "estate_sale", label: t("explorer.estateSale"), color: "bg-amber-100 text-amber-800" },
+  { id: "multi_family_sale", label: t("explorer.multiFamilySale"), color: "bg-purple-100 text-purple-800" },
+  { id: "block_sale", label: t("explorer.blockSale"), color: "bg-pink-100 text-pink-800" },
+  { id: "free_stuff", label: t("explorer.freeStuff"), color: "bg-cyan-100 text-cyan-800" },
 ];
 
 export default function Explorer() {
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const SALE_CATEGORIES = getCategoryLabels(t);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedListings, setSelectedListings] = useState<number[]>([]);

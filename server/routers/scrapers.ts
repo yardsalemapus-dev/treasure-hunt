@@ -15,6 +15,33 @@ const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   return next({ ctx });
 });
 
+// Get language-specific search terms for regional content
+const getLanguageSpecificSearchTerms = (region: string) => {
+  const regionMap: Record<string, { en: string[]; es: string[] }> = {
+    nyc: {
+      en: ["garage sale", "yard sale", "estate sale"],
+      es: ["venta de garaje", "venta de patio", "venta de herencia"],
+    },
+    la: {
+      en: ["garage sale", "yard sale", "estate sale"],
+      es: ["venta de garaje", "venta de patio", "venta de herencia"],
+    },
+    sf: {
+      en: ["garage sale", "yard sale", "estate sale"],
+      es: ["venta de garaje", "venta de patio", "venta de herencia"],
+    },
+    miami: {
+      en: ["garage sale", "yard sale", "estate sale"],
+      es: ["venta de garaje", "venta de patio", "venta de herencia"],
+    },
+    austin: {
+      en: ["garage sale", "yard sale", "estate sale"],
+      es: ["venta de garaje", "venta de patio", "venta de herencia"],
+    },
+  };
+  return regionMap[region] || regionMap["nyc"];
+};
+
 export const scrapersRouter = router({
   // Trigger a scraper manually
   triggerScraper: adminProcedure
@@ -49,7 +76,9 @@ export const scrapersRouter = router({
             throw new Error("Unknown scraper source");
         }
 
-        const listings = await scraper.scrape(input.region || "nyc");
+        // Add language-specific search terms based on region
+        const searchTerms = getLanguageSpecificSearchTerms(input.region || "nyc");
+        const listings = await scraper.scrape(input.region || "nyc", searchTerms);
 
         // Log admin action
         await db.insert(adminLogs).values({
@@ -67,7 +96,8 @@ export const scrapersRouter = router({
         return {
           success: true,
           listingsFound: listings.length,
-          message: `Scraper triggered for ${input.source}`,
+          message: `Scraper triggered for ${input.source} (English & Spanish content)`,
+          languageSupport: "bilingual",
         };
       } catch (error) {
         console.error("Scraper trigger failed:", error);

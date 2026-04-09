@@ -5,9 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Heart, TrendingUp, Settings, LogOut } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export function UserDashboard() {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch user's saved routes
@@ -42,13 +45,16 @@ export function UserDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user?.name}!</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t("userDashboard.title")}</h1>
+            <p className="text-gray-600 mt-1">{t("home.welcome")}, {user?.name}!</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="gap-2">
-            <LogOut className="w-4 h-4" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <LanguageToggle />
+            <Button onClick={handleLogout} variant="outline" className="gap-2">
+              <LogOut className="w-4 h-4" />
+              {t("common.logout")}
+            </Button>
+          </div>
         </div>
 
         {/* Subscription Status Card */}
@@ -57,7 +63,7 @@ export function UserDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-blue-600" />
-                Subscription Status
+                {t("userDashboard.myProfile")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -65,7 +71,7 @@ export function UserDashboard() {
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
                   <p className="text-lg font-semibold text-gray-900">
-                    {subscription.status === "trial" ? "Trial Active" : "Premium"}
+                    {subscription.status === "trial" ? t("common.loading") : t("common.success")}
                   </p>
                 </div>
                 {subscription.status === "trial" && (

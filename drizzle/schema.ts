@@ -25,6 +25,7 @@ export const users = mysqlTable("users", {
   // SMS notification fields
   phoneNumber: varchar("phoneNumber", { length: 20 }),
   smsNotificationsEnabled: boolean("smsNotificationsEnabled").default(false).notNull(),
+  preferredLanguage: varchar("preferredLanguage", { length: 5 }).default("en").notNull(),
   // Referral program fields
   referralCode: varchar("referralCode", { length: 50 }).unique(),
   referredBy: int("referredBy"), // User ID of referrer

@@ -43,6 +43,13 @@
       "when": 1775673099767,
       "tag": "0005_bouncy_korath",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1775694586502,
+      "tag": "0006_lame_grandmaster",
+      "breakpoints": true
     }
   ]
 }

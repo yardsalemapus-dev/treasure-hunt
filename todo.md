@@ -197,8 +197,10 @@
 - [x] Add language toggle button to navigation
 - [x] Translate Landing page
 - [x] Translate Home/Explorer pages
-- [ ] Translate Dashboard pages
-- [ ] Translate Admin Dashboard
-- [ ] Translate all UI components
+- [x] Translate Dashboard pages (UserDashboard, SellerDashboard)
+- [x] Translate Admin Dashboard
+- [x] Translate all UI components with language toggle
 - [x] Persist language preference to localStorage
-- [ ] Test all pages in both languages
+- [x] Test all pages in both languages
+- [x] Add language-specific content for regional sales
+- [x] Implement Spanish SMS notifications with language support

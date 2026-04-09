@@ -6,8 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, BarChart3, MapPin, Users, TrendingUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export function SellerDashboard() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -47,9 +50,12 @@ export function SellerDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
-          <p className="text-gray-600 mt-1">Manage your garage sales and track visitor engagement</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{t("sellerDashboard.title")}</h1>
+            <p className="text-gray-600 mt-1">{t("sellerDashboard.createListing")}</p>
+          </div>
+          <LanguageToggle />
         </div>
 
         {/* Stats */}
