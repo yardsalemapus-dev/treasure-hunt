@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { CraigslistScraper } from "../scrapers/craigslistScraper";
 import { FacebookScraper } from "../scrapers/facebookScraper";
 import { EbayScraper, NextdoorScraper } from "../scrapers/ebayNextdoorScraper";
+import { generateOptimizedRoutes } from "../services/routeOptimizer";
 
 // Admin-only procedure
 const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
@@ -93,11 +94,28 @@ export const scrapersRouter = router({
           ipAddress: ctx.req.ip,
         });
 
+        // Generate optimized routes from scraped listings
+        const locations = listings.map((l: any) => ({
+          id: l.id,
+          latitude: Number(l.latitude),
+          longitude: Number(l.longitude),
+          title: l.title,
+        }));
+        const routes = generateOptimizedRoutes(locations, 2);
+
         return {
           success: true,
           listingsFound: listings.length,
+          routesGenerated: routes.length,
           message: `Scraper triggered for ${input.source} (English & Spanish content)`,
           languageSupport: "bilingual",
+          routes: routes.map((r) => ({
+            clusterIndex: r.clusterIndex,
+            stops: r.listingIds.length,
+            distance: r.totalDistance,
+            estimatedTime: r.estimatedTime,
+            centerPoint: r.centerPoint,
+          })),
         };
       } catch (error) {
         console.error("Scraper trigger failed:", error);

@@ -6,7 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
-import Explorer from "./pages/Explorer";
+import { Explorer } from "./pages/Explorer";
 import TrialDashboard from "./pages/TrialDashboard";
 import { UserDashboard } from "./pages/UserDashboard";
 import { Analytics } from "./pages/Analytics";

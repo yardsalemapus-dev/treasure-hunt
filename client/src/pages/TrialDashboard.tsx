@@ -258,7 +258,8 @@ export default function TrialDashboard() {
     try {
       await saveRouteMutation.mutateAsync({
         name: `Route - ${new Date().toLocaleDateString()}`,
-        listings: optimizedRoute.listings.map((l) => l.id),
+        listingIds: optimizedRoute.listings.map((l) => l.id),
+        optimizedOrder: optimizedRoute.listings.map((l) => l.id),
         totalDistance: optimizedRoute.totalDistance,
         estimatedTime: optimizedRoute.estimatedTime,
       });

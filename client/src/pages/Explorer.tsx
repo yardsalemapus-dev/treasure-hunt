@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { MapComponent } from "@/components/MapComponent";
+import { MapView } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { toast } from "sonner";
@@ -18,50 +17,38 @@ interface Listing {
   address: string;
   latitude: string;
   longitude: string;
+  saleDate: string;
+  startTime?: string;
   category: string;
   source: string;
-  sourceUrl?: string | null;
 }
 
-const getCategoryLabels = (t: any) => [
-  { id: "garage_sale", label: t("explorer.garageSale"), color: "bg-blue-100 text-blue-800" },
-  { id: "yard_sale", label: t("explorer.yardSale"), color: "bg-green-100 text-green-800" },
-  { id: "estate_sale", label: t("explorer.estateSale"), color: "bg-amber-100 text-amber-800" },
-  { id: "multi_family_sale", label: t("explorer.multiFamilySale"), color: "bg-purple-100 text-purple-800" },
-  { id: "block_sale", label: t("explorer.blockSale"), color: "bg-pink-100 text-pink-800" },
-  { id: "free_stuff", label: t("explorer.freeStuff"), color: "bg-cyan-100 text-cyan-800" },
-];
-
-export default function Explorer() {
-  const { user } = useAuth();
+export function Explorer() {
   const { t } = useLanguage();
-  const SALE_CATEGORIES = getCategoryLabels(t);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedListings, setSelectedListings] = useState<number[]>([]);
   const [showRoute, setShowRoute] = useState(false);
-  const [radius, setRadius] = useState(25); // miles
 
   // Fetch nearby listings
-  const { data: listingsRaw = [], isLoading: listingsLoading } = trpc.listings.getNearby.useQuery(
+  const { data: listingsRaw, isLoading: listingsLoading } = trpc.listings.getNearby.useQuery(
     userLocation
       ? {
           latitude: userLocation.lat,
           longitude: userLocation.lng,
-          radiusMiles: radius,
-          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+          radiusMiles: 10,
         }
       : skipToken
   );
   const listings = listingsRaw as any[];
 
-  // Calculate optimized route
-  const { data: routeData, isLoading: routeLoading } = trpc.routes.calculateOptimized.useQuery(
-    selectedListings.length > 0 && userLocation
+  // Generate optimized routes
+  const { data: routeData, isLoading: routeLoading } = trpc.routes.generateRoutes.useQuery(
+    userLocation
       ? {
-          listingIds: selectedListings,
-          userLatitude: userLocation.lat,
-          userLongitude: userLocation.lng,
+          latitude: userLocation.lat,
+          longitude: userLocation.lng,
+          radiusMiles: 10,
+          clusterRadiusMiles: 2,
         }
       : skipToken
   );
@@ -75,261 +62,156 @@ export default function Explorer() {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
-          toast.success("Location detected!");
         },
-        (error) => {
-          console.error("Geolocation error:", error);
-          // Default to San Francisco if geolocation fails
-          setUserLocation({ lat: 37.7749, lng: -122.4194 });
-          toast.info("Using default location (San Francisco)");
+        () => {
+          // Default to NYC if geolocation fails
+          setUserLocation({ lat: 40.7128, lng: -74.006 });
         }
       );
     }
   }, []);
 
-  const handleCategoryToggle = (categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((c) => c !== categoryId) : [...prev, categoryId]
-    );
-  };
-
-  const handleListingToggle = (listingId: number) => {
+  const handleSelectListing = (id: number) => {
     setSelectedListings((prev) =>
-      prev.includes(listingId) ? prev.filter((l) => l !== listingId) : [...prev, listingId]
+      prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id]
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedListings.length === listings.length) {
-      setSelectedListings([]);
-    } else {
-      setSelectedListings(listings.map((l) => l.id));
-    }
-  };
-
-  const handlePlanRoute = () => {
+  const handleGenerateRoute = () => {
     if (selectedListings.length === 0) {
-      toast.error("Please select at least one sale to plan a route");
+      toast.error("Please select at least one sale");
       return;
     }
     setShowRoute(true);
   };
 
-  const handleSaveRoute = async () => {
-    if (!user || !routeData) return;
-
-    try {
-      const routeName = prompt("Enter a name for this route:");
-      if (!routeName) return;
-
-      // Save route (requires authentication)
-      toast.success("Route saved! You can view it in your saved routes.");
-    } catch (error) {
-      toast.error("Failed to save route");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 h-screen">
-        {/* Sidebar */}
-        <div className="lg:col-span-1 flex flex-col gap-4 overflow-y-auto">
-          {/* Header */}
-          <Card className="p-4">
-            <h1 className="text-2xl font-bold text-slate-900">TreasureHunt</h1>
-            <p className="text-sm text-slate-600">Find the best sales near you</p>
-          </Card>
-
-          {/* Location & Radius */}
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-4 h-4 text-blue-600" />
-              <h3 className="font-semibold">Location</h3>
-            </div>
-            {userLocation && (
-              <p className="text-sm text-slate-600 mb-3">
-                {userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}
-              </p>
-            )}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search Radius: {radius} miles</label>
-              <input
-                type="range"
-                min="5"
-                max="100"
-                value={radius}
-                onChange={(e) => setRadius(parseInt(e.target.value))}
-                className="w-full"
-              />
-            </div>
-          </Card>
-
-          {/* Categories */}
-          <Card className="p-4">
-            <h3 className="font-semibold mb-3">Sale Types</h3>
-            <div className="space-y-2">
-              {SALE_CATEGORIES.map((category) => (
-                <div key={category.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={category.id}
-                    checked={selectedCategories.includes(category.id)}
-                    onCheckedChange={() => handleCategoryToggle(category.id)}
-                  />
-                  <label htmlFor={category.id} className="text-sm cursor-pointer">
-                    {category.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Stats */}
-          <Card className="p-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-slate-600">Found:</span>
-                <span className="font-bold">{listings.length} sales</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-slate-600">Selected:</span>
-                <span className="font-bold">{selectedListings.length}</span>
-              </div>
-              {routeData && (
-                <>
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-sm text-slate-600">Total Distance:</span>
-                    <span className="font-bold">{routeData.totalDistance} mi</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-600">Est. Time:</span>
-                    <span className="font-bold">{routeData.estimatedTime} min</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </Card>
-
-          {/* Actions */}
-          <div className="space-y-2">
-            <Button
-              onClick={handleSelectAll}
-              variant="outline"
-              className="w-full"
-              disabled={listings.length === 0}
-            >
-              {selectedListings.length === listings.length ? "Deselect All" : "Select All"}
-            </Button>
-            <Button
-              onClick={handlePlanRoute}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-              disabled={selectedListings.length === 0 || routeLoading}
-            >
-              {routeLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Planning...
-                </>
-              ) : (
-                <>
-                  <Navigation className="w-4 h-4 mr-2" />
-                  Plan Route
-                </>
-              )}
-            </Button>
-            {routeData && user && (
-              <Button onClick={handleSaveRoute} variant="outline" className="w-full">
-                Save Route
-              </Button>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{t("explorer.title")}</h1>
+            <p className="text-gray-600 mt-1">{t("explorer.findSales")}</p>
           </div>
-
-          {/* Listings List */}
-          <Card className="p-4 flex-1 overflow-y-auto">
-            <h3 className="font-semibold mb-3">Sales</h3>
-            {listingsLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-              </div>
-            ) : listings.length === 0 ? (
-              <p className="text-sm text-slate-500">No sales found in this area</p>
-            ) : (
-              <div className="space-y-2">
-                {listings.map((listing) => (
-                  <div
-                    key={listing.id}
-                    className="p-2 border rounded hover:bg-slate-50 cursor-pointer"
-                    onClick={() => handleListingToggle(listing.id)}
-                  >
-                    <div className="flex items-start gap-2">
-                      <Checkbox
-                        checked={selectedListings.includes(listing.id)}
-                        onCheckedChange={() => handleListingToggle(listing.id)}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium line-clamp-2">{listing.title}</p>
-                        <p className="text-xs text-slate-600 line-clamp-1">{listing.address}</p>
-                        <Badge className="text-xs mt-1" variant="outline">
-                          {SALE_CATEGORIES.find((c) => c.id === listing.category)?.label}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+          <LanguageToggle />
         </div>
 
-        {/* Map */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
-          <Card className="flex-1 overflow-hidden">
-            {userLocation ? (
-              <MapComponent
-                listings={listings as any}
-                userLocation={userLocation}
-                selectedCategories={selectedCategories}
-                onListingClick={(listing: any) => handleListingToggle(listing.id)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-slate-400" />
-                  <p className="text-slate-600">Loading map...</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Map */}
+          <div className="lg:col-span-2">
+            <Card className="h-96 overflow-hidden">
+              {userLocation ? (
+                <MapView initialCenter={{ lat: userLocation.lat, lng: userLocation.lng }} initialZoom={13} />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                 </div>
-              </div>
-            )}
-          </Card>
+              )}
+            </Card>
+          </div>
 
-          {/* Route Summary */}
-          {showRoute && routeData && (
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Listings List */}
             <Card className="p-4">
-              <div className="space-y-3">
-                <h3 className="font-bold text-lg">Optimized Route</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-600">Total Distance</p>
-                    <p className="text-2xl font-bold">{routeData.totalDistance} mi</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Estimated Time</p>
-                    <p className="text-2xl font-bold">{routeData.estimatedTime} min</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Sales to Visit</p>
-                    <p className="text-2xl font-bold">{selectedListings.length}</p>
-                  </div>
+              <h2 className="font-bold text-lg mb-3">{t("explorer.nearbyListings")}</h2>
+              {listingsLoading ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
                 </div>
-                <div className="bg-slate-50 p-3 rounded space-y-2 max-h-48 overflow-y-auto">
-                  {routeData.listings?.map((listing: any, index: number) => (
-                    <div key={listing?.id} className="text-sm">
-                      <span className="font-bold text-blue-600">{index + 1}.</span>{" "}
-                      <span>{listing?.title}</span>
+              ) : listings && listings.length > 0 ? (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {listings.map((listing: Listing) => (
+                    <div
+                      key={listing.id}
+                      className="flex items-start gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer"
+                      onClick={() => handleSelectListing(listing.id)}
+                    >
+                      <Checkbox
+                        checked={selectedListings.includes(listing.id)}
+                        onCheckedChange={() => handleSelectListing(listing.id)}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm truncate">{listing.title}</p>
+                        <p className="text-xs text-gray-500 truncate">{listing.address}</p>
+                        <Badge className="text-xs mt-1">{listing.category}</Badge>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </div>
+              ) : (
+                <p className="text-sm text-gray-600">{t("explorer.noListings")}</p>
+              )}
             </Card>
-          )}
+
+            {/* Route Generation */}
+            <Card className="p-4">
+              <Button
+                onClick={handleGenerateRoute}
+                disabled={selectedListings.length === 0 || routeLoading}
+                className="w-full gap-2"
+              >
+                {routeLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {t("explorer.generating")}
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-4 h-4" />
+                    {t("explorer.generateRoute")}
+                  </>
+                )}
+              </Button>
+            </Card>
+
+            {/* Route Summary */}
+            {showRoute && routeData && (
+              <Card className="p-4">
+                <h3 className="font-bold text-lg mb-3">{t("explorer.optimizedRoutes")}</h3>
+                {routeData.routes && routeData.routes.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-gray-600">{t("explorer.routesFound")}</p>
+                        <p className="text-2xl font-bold">{routeData.routesCount}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">{t("explorer.listings")}</p>
+                        <p className="text-2xl font-bold">{routeData.listingsCount}</p>
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded space-y-2 max-h-48 overflow-y-auto">
+                      {routeData.routes.map((route: any, routeIndex: number) => (
+                        <div key={routeIndex} className="text-sm border-b pb-2">
+                          <p className="font-bold text-blue-600">
+                            {t("explorer.route")} {routeIndex + 1}
+                          </p>
+                          <div className="flex gap-2 text-xs text-gray-600 mt-1">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {route.listingIds.length} {t("explorer.stops")}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Navigation className="w-3 h-3" />
+                              {route.totalDistance.toFixed(1)} mi
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {route.estimatedTime} min
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-600">{t("explorer.noRoutes")}</p>
+                )}
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

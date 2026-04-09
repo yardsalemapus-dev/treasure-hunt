@@ -204,3 +204,14 @@
 - [x] Test all pages in both languages
 - [x] Add language-specific content for regional sales
 - [x] Implement Spanish SMS notifications with language support
+
+
+## Phase 17: Route Optimization & Auto-Grouping
+- [x] Design clustering algorithm for nearby sales
+- [x] Implement geographic clustering (distance-based)
+- [x] Create route optimization using TSP algorithm
+- [x] Build auto-route generation after scrape
+- [x] Create route suggestion UI for customers
+- [x] Add route preview on map (via MapView component)
+- [x] Implement route sharing functionality
+- [x] Test route optimization with real data (82 tests passing)

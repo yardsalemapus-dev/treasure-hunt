@@ -47,6 +47,7 @@
   },
   "explorer": {
     "title": "Explore Sales",
+    "findSales": "Find and optimize your route to nearby garage sales",
     "searchPlaceholder": "Search by location, category...",
     "filters": "Filters",
     "category": "Category",
@@ -63,7 +64,14 @@
     "viewDetails": "View Details",
     "getDirections": "Get Directions",
     "saveToRoute": "Save to Route",
-    "noResults": "No results found"
+    "noResults": "No results found",
+    "nearbyListings": "Nearby Listings",
+    "noListings": "No listings found",
+    "generating": "Generating routes...",
+    "generateRoute": "Generate Route",
+    "optimizedRoutes": "Optimized Routes",
+    "routesFound": "Routes Found",
+    "listings": "Listings"
   },
   "dashboard": {
     "title": "My Dashboard",
@@ -166,7 +174,27 @@
     "totalDistance": "Total Distance",
     "estimatedTime": "Estimated Time",
     "startRoute": "Start Route",
-    "saveRoute": "Save Route"
+    "saveRoute": "Save Route",
+    "generating": "Generating optimized routes...",
+    "noRoutesFound": "No routes found in this area",
+    "tryAgain": "Try Again",
+    "routesFound": "Routes Found",
+    "totalListings": "Total Listings",
+    "searchRadius": "Search Radius",
+    "route": "Route",
+    "stops": "stops",
+    "cluster": "Cluster",
+    "distance": "Distance",
+    "time": "Time",
+    "center": "Center",
+    "stopSequence": "Stop Sequence",
+    "save": "Save Route",
+    "saving": "Saving...",
+    "saved": "Route saved successfully!",
+    "saveFailed": "Failed to save route",
+    "share": "Share",
+    "copiedToClipboard": "Copied to clipboard!",
+    "refreshRoutes": "Refresh Routes"
   },
   "notifications": {
     "title": "Notifications",
