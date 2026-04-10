@@ -215,3 +215,13 @@
 - [x] Add route preview on map (via MapView component)
 - [x] Implement route sharing functionality
 - [x] Test route optimization with real data (82 tests passing)
+
+
+## Phase 18: Turn-by-Turn Navigation
+- [x] Create navigation service with Directions API
+- [x] Build TurnByTurnNav component with voice guidance
+- [x] Integrate navigation into RouteOptimizer
+- [x] Add real-time location tracking via calculateProgress
+- [x] Display step-by-step directions with upcoming steps
+- [x] Add voice guidance support with TTS
+- [x] Test navigation end-to-end (11 tests passing)

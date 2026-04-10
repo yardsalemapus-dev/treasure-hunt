@@ -196,6 +196,20 @@
     "copiedToClipboard": "Copied to clipboard!",
     "refreshRoutes": "Refresh Routes"
   },
+  "navigation": {
+    "turnByTurn": "Turn-by-Turn Navigation",
+    "nextInstruction": "Next Instruction",
+    "distance": "Distance",
+    "time": "Time",
+    "step": "Step",
+    "totalRoute": "Total Route",
+    "upcomingSteps": "Upcoming Steps",
+    "previous": "Previous",
+    "next": "Next",
+    "voiceOn": "Voice On",
+    "voiceOff": "Voice Off",
+    "navigating": "Navigation Active"
+  },
   "notifications": {
     "title": "Notifications",
     "noNotifications": "No notifications",
