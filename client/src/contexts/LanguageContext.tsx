@@ -59,7 +59,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   if (!isLoaded) {
-    return <>{children}</>;
+    return null;
   }
 
   return (
