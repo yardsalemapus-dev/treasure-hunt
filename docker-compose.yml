@@ -2,7 +2,16 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - VITE_APP_ID=${VITE_APP_ID}
+        - VITE_OAUTH_PORTAL_URL=${VITE_OAUTH_PORTAL_URL:-https://api.manus.im}
+        - VITE_FRONTEND_FORGE_API_KEY=${VITE_FRONTEND_FORGE_API_KEY}
+        - VITE_FRONTEND_FORGE_API_URL=${VITE_FRONTEND_FORGE_API_URL:-https://forge.butterfly-effect.dev}
+        - VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+        - VITE_ANALYTICS_ENDPOINT=${VITE_ANALYTICS_ENDPOINT:-http://localhost}
+        - VITE_ANALYTICS_WEBSITE_ID=${VITE_ANALYTICS_WEBSITE_ID:-placeholder}
     ports:
       - "8080:8080"
     environment:
