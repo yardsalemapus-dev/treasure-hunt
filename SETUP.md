@@ -25,7 +25,7 @@ Create a `.env.local` file in the project root with the following variables:
 
 ```bash
 # Database (required)
-DATABASE_URL=mysql://root:password@localhost:3306/treasure_hunt
+136.113.62.73=mysql://root:nicanor2@136.113.62.73:3306/yardsalemap
 
 # OAuth (required)
 JWT_SECRET=6982de07b5e2356a158915839a053b7c6c5cfce16a58eb07a0798f2aec375121
