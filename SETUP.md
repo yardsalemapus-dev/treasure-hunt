@@ -28,19 +28,19 @@ Create a `.env.local` file in the project root with the following variables:
 DATABASE_URL=mysql://root:password@localhost:3306/treasure_hunt
 
 # OAuth (required)
-JWT_SECRET=your-secret-key-min-32-chars
-VITE_APP_ID=your_app_id
+JWT_SECRET=6982de07b5e2356a158915839a053b7c6c5cfce16a58eb07a0798f2aec375121
+VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
 OAUTH_SERVER_URL=https://api.manus.im
 VITE_OAUTH_PORTAL_URL=https://api.manus.im
 
 # Owner info (required)
-OWNER_OPEN_ID=your_owner_id
-OWNER_NAME=Your Name
+OWNER_OPEN_ID=freeemc2
+OWNER_NAME=Brian
 
 # API Keys (required)
 BUILT_IN_FORGE_API_URL=https://forge.butterfly-effect.dev
-BUILT_IN_FORGE_API_KEY=your_api_key
-VITE_FRONTEND_FORGE_API_KEY=your_frontend_key
+BUILT_IN_FORGE_API_KEY=ATATT3xFfGF0CcCEWV0e80Q6wiIV0HgaSyz3iYkxCWhy3SpmD9Hy7hoxlEzPkuQGyRuTH_COOEm-UToz09M90mmcrNZ5aP1c0Bg9TFjiZ3dDqtiGDznuZd6cbMCBGwHaLODq2H5Z-GzjkNpNxwIHhjhFGP9XqzWfjayLmZIKemAzYUp-YymaMXY=B4FDB169
+VITE_FRONTEND_FORGE_API_KEY=CKKCkezKdaFEvEoNy7GxWSNV
 VITE_FRONTEND_FORGE_API_URL=https://forge.butterfly-effect.dev
 
 # Stripe (optional)
