@@ -25,7 +25,27 @@ Create a `.env.local` file in the project root with the following variables:
 
 ```bash
 # Database (required)
-136.113.62.73=mysql://root:nicanor2@136.113.62.73:3306/yardsalemap
+DATABASE_URL=mysql://treasure_hunt:TreasureHunt123!@localhost:3306/treasure_hunt
+# OAuth (required)
+JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
+VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
+OAUTH_SERVER_URL=https://api.manus.im
+VITE_OAUTH_PORTAL_URL=https://api.manus.im
+
+# Owner info (required)
+OWNER_OPEN_ID=freeemc2
+OWNER_NAME=Brian
+
+# API Keys (required)
+BUILT_IN_FORGE_API_URL=https://forge.butterfly-effect.dev
+BUILT_IN_FORGE_API_KEY=ATATT3xFfGF0CcCEWV0e80Q6wiIV0HgaSyz3iYkxCWhy3SpmD9Hy7hoxlEzPkuQGyRuTH_COOEm-UToz09M90mmcrNZ5aP1c0Bg9TFjiZ3dDqtiGDznuZd6cbMCBGwHaLODq2H5Z-GzjkNpNxwIHhjhFGP9XqzWfjayLmZIKemAzYUp-YymaMXY=B4FDB169
+VITE_FRONTEND_FORGE_API_KEY=CKKCkezKdaFEvEoNy7GxWSNV
+VITE_FRONTEND_FORGE_API_URL=https://forge.butterfly-effect.dev
+
+# Stripe (optional)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
 # OAuth (required)
 JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
