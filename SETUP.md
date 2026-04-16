@@ -28,7 +28,7 @@ Create a `.env.local` file in the project root with the following variables:
 136.113.62.73=mysql://root:nicanor2@136.113.62.73:3306/yardsalemap
 
 # OAuth (required)
-JWT_SECRET=6982de07b5e2356a158915839a053b7c6c5cfce16a58eb07a0798f2aec375121
+JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
 VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
 OAUTH_SERVER_URL=https://api.manus.im
 VITE_OAUTH_PORTAL_URL=https://api.manus.im
