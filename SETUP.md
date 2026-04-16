@@ -25,7 +25,7 @@ Create a `.env.local` file in the project root with the following variables:
 
 ```bash
 # Database (required)
-DATABASE_URL=mysql://treasure_hunt:TreasureHunt123!@localhost:3306/treasure_hunt
+DATABASE_URL=mysql://treasure_hunt:TreasureHunt@localhost:3306/treasure_hunt Quintilius3Nic@nor2
 # OAuth (required)
 JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
 VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
