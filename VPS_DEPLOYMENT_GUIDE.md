@@ -56,31 +56,30 @@ nano .env
 **Critical Variables to Set:**
 ```env
 # Database
-DATABASE_URL=mysql://treasure_hunt:treasure_hunt_pass@db:3306/treasure_hunt
+DATABASE_URL=mysql://root:password@localhost:3306/treasure_hunt Quintilius3Nic@nor2
 
-# Auth
-JWT_SECRET=your-secure-random-string-here
-VITE_APP_ID=your_manus_app_id
-
-# OAuth
+# OAuth (required)
+JWT_SECRET=6982de07b5e2356a158915839a053b7c6c5cfce16a58eb07a0798f2aec375121
+VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
 OAUTH_SERVER_URL=https://api.manus.im
-VITE_OAUTH_PORTAL_URL=https://oauth.manus.im
+VITE_OAUTH_PORTAL_URL=https://api.manus.im
 
-# Owner Info
-OWNER_NAME=Your Name
-OWNER_OPEN_ID=your_open_id
+# Owner info (required)
+OWNER_OPEN_ID=freeemc2
+OWNER_NAME=Brian
 
-# Manus APIs
-BUILT_IN_FORGE_API_KEY=your_key
-VITE_FRONTEND_FORGE_API_KEY=your_key
+# API Keys (required)
+BUILT_IN_FORGE_API_URL=https://forge.butterfly-effect.dev
+BUILT_IN_FORGE_API_KEY=ATATT3xFfGF0CcCEWV0e80Q6wiIV0HgaSyz3iYkxCWhy3SpmD9Hy7hoxlEzPkuQGyRuTH_COOEm-UToz09M90mmcrNZ5aP1c0Bg9TFjiZ3dDqtiGDznuZd6cbMCBGwHaLODq2H5Z-GzjkNpNxwIHhjhFGP9XqzWfjayLmZIKemAzYUp-YymaMXY=B4FDB169
+VITE_FRONTEND_FORGE_API_KEY=CKKCkezKdaFEvEoNy7GxWSNV
+VITE_FRONTEND_FORGE_API_URL=https://forge.butterfly-effect.dev
 
-# Analytics (FIX FOR UMAMI ERROR)
-VITE_ANALYTICS_ENDPOINT=https://your-analytics-domain.com/api/send
-VITE_ANALYTICS_WEBSITE_ID=your_website_id
+# Stripe (optional)
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=whsec_...
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51T3zQcK7QLJM9frKonh17ZusavUm9JbpfXUYsrdnNzy6P0dKmyAKwz0i8YdfOcEuVMp54LpK2Cz2P58tdWxLEecC00zeELsrFQ51T3zQcK7QLJM9frKonh17ZusavUm9JbpfXUYsrdnNzy6P0dKmyAKwz0i8YdfOcEuVMp54LpK2Cz2P58tdWxLEecC00zeELsrFQ
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_xxx
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_xxx
+
 ```
 
 ### 5. Fix Docker Environment Variable Injection
