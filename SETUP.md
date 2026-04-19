@@ -25,21 +25,21 @@ Create a `.env.local` file in the project root with the following variables:
 
 ```bash
 # Database (required)
-DATABASE_URL=mysql://treasure_hunt:TreasureHunt@localhost:3306/treasure_hunt Quintilius3Nic@nor2
+DATABASE_URL=mysql:
 # OAuth (required)
-JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
-VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
+JWT_SECRET=
+VITE_APP_ID=
 OAUTH_SERVER_URL=https://api.manus.im
 VITE_OAUTH_PORTAL_URL=https://api.manus.im
 
 # Owner info (required)
-OWNER_OPEN_ID=freeemc2
-OWNER_NAME=Brian
+OWNER_OPEN_ID=
+OWNER_NAME=
 
 # API Keys (required)
 BUILT_IN_FORGE_API_URL=https://forge.butterfly-effect.dev
-BUILT_IN_FORGE_API_KEY=ATATT3xFfGF0CcCEWV0e80Q6wiIV0HgaSyz3iYkxCWhy3SpmD9Hy7hoxlEzPkuQGyRuTH_COOEm-UToz09M90mmcrNZ5aP1c0Bg9TFjiZ3dDqtiGDznuZd6cbMCBGwHaLODq2H5Z-GzjkNpNxwIHhjhFGP9XqzWfjayLmZIKemAzYUp-YymaMXY=B4FDB169
-VITE_FRONTEND_FORGE_API_KEY=CKKCkezKdaFEvEoNy7GxWSNV
+BUILT_IN_FORGE_API_KEY=
+VITE_FRONTEND_FORGE_API_KEY=
 VITE_FRONTEND_FORGE_API_URL=https://forge.butterfly-effect.dev
 
 # Stripe (optional)
@@ -48,25 +48,25 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 
 # OAuth (required)
-JWT_SECRET=24f201819f53511f3b4a3939215381d3d313b0b287260c002ba0a859c023e19e
-VITE_APP_ID=CKKCkezKdaFEvEoNy7GxWSNV
+JWT_SECRET=
+VITE_APP_ID=
 OAUTH_SERVER_URL=https://api.manus.im
 VITE_OAUTH_PORTAL_URL=https://api.manus.im
 
 # Owner info (required)
-OWNER_OPEN_ID=freeemc2
-OWNER_NAME=Brian
+OWNER_OPEN_ID=
+OWNER_NAME=
 
 # API Keys (required)
 BUILT_IN_FORGE_API_URL=https://forge.butterfly-effect.dev
-BUILT_IN_FORGE_API_KEY=ATATT3xFfGF0CcCEWV0e80Q6wiIV0HgaSyz3iYkxCWhy3SpmD9Hy7hoxlEzPkuQGyRuTH_COOEm-UToz09M90mmcrNZ5aP1c0Bg9TFjiZ3dDqtiGDznuZd6cbMCBGwHaLODq2H5Z-GzjkNpNxwIHhjhFGP9XqzWfjayLmZIKemAzYUp-YymaMXY=B4FDB169
-VITE_FRONTEND_FORGE_API_KEY=CKKCkezKdaFEvEoNy7GxWSNV
+BUILT_IN_FORGE_API_KEY=
+VITE_FRONTEND_FORGE_API_KEY=
 VITE_FRONTEND_FORGE_API_URL=https://forge.butterfly-effect.dev
 
 # Stripe (optional)
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=whsec_...
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_51T3zQcK7QLJM9frKonh17ZusavUm9JbpfXUYsrdnNzy6P0dKmyAKwz0i8YdfOcEuVMp54LpK2Cz2P58tdWxLEecC00zeELsrFQ51T3zQcK7QLJM9frKonh17ZusavUm9JbpfXUYsrdnNzy6P0dKmyAKwz0i8YdfOcEuVMp54LpK2Cz2P58tdWxLEecC00zeELsrFQ
+VITE_STRIPE_PUBLISHABLE_KEY=
 
 ```
 
